@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "837124259487",
+    "firebase_url": "https://shopit-2c7fa.firebaseio.com",
+    "project_id": "shopit-2c7fa",
+    "storage_bucket": "shopit-2c7fa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:837124259487:android:acccad3f16bd5d76",
+        "android_client_info": {
+          "package_name": "com.shopit.shopit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "837124259487-iv6o6evhgfb96hf7f3ba3pdlac1lpout.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shopit.shopit",
+            "certificate_hash": "3d648b18f4d551cc0cbd2fc6f5fb43a17fd64422"
+          }
+        },
+        {
+          "client_id": "837124259487-rf8cnsatrjdg4ir16qfkj100hibm242h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDj2XT4dR4LMQeVNsb4Z9JXGNPb2BnvdTA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "837124259487-rf8cnsatrjdg4ir16qfkj100hibm242h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
