@@ -48,11 +48,9 @@ public class GenericRecyclerViewAdapter<T,V extends RecyclerView.ViewHolder> ext
 
     public void onUpdateSingleItem(T item){
         int index = items.indexOf(item);
-        Log.e("Element found at", Integer.toString(index));
         if(index>=0){
             boolean itemRemoved = items.remove(item);
             items.add(index,item);
-            Log.e("Item removed ",Boolean.toString(itemRemoved));
         }else{
             items.add(item);
         }

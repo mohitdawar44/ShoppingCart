@@ -12,19 +12,23 @@ public class Item {
     private String url;
     private Double price;
     private String name;
-    private boolean isAvailable;
+    private boolean available;
     private String key;
+    private String sizesAvailable;
+    private String colorsAvailable;
 
     public Item(){
 
     }
 
-    public Item(String id,String name,Double price,String url,boolean isAvailable){
+    public Item(String id,String name,Double price,String url,boolean available,String sizesAvailable,String colorsAvailable){
         this.id = id;
         this.url = url;
         this.price = price;
         this.name = name;
-        this.isAvailable = isAvailable;
+        this.available = available;
+        this.sizesAvailable = sizesAvailable;
+        this.colorsAvailable = colorsAvailable;
     }
 
     public String getId() {
@@ -41,9 +45,16 @@ public class Item {
     }
 
     public boolean isAvailable() {
-        return isAvailable;
+        return available;
     }
 
+    public String getSizesAvailable() {
+        return sizesAvailable;
+    }
+
+    public String getColorsAvailable() {
+        return colorsAvailable;
+    }
 
     public String getKey() {
         return key;

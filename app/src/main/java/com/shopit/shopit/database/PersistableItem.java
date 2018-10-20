@@ -20,5 +20,12 @@ public class PersistableItem {
 
     @ColumnInfo
     public String itemId;
+
+    @ColumnInfo
+    public String itemColor;
+
+    @ColumnInfo
+    public String itemSize;
+
 }
 

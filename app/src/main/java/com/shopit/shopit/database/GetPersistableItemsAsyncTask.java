@@ -28,7 +28,7 @@ public class GetPersistableItemsAsyncTask extends AsyncTask<Void,Void,List<Persi
     @Override
     protected List<PersistableItem> doInBackground(Void... params) {
         return InstantiateDatabase.getDatabaseInstance
-                (context.getApplicationContext()).messageDao().
+                (context.getApplicationContext()).itemsDao().
                 getAllItems();
     }
 

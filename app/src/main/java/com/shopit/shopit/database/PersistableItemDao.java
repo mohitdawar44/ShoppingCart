@@ -33,7 +33,8 @@ public interface PersistableItemDao {
     @Query("Select * from persistableItem")
     List<PersistableItem> getAllItems();
 
-    @Query("Select * from persistableItem WHERE itemId = :itemId")
-    PersistableItem getItemByItemId(String itemId);
+    @Query("Select * from persistableItem WHERE itemId = :itemId "+
+            "AND itemColor = :itemColor " +"AND itemSize = :itemSize")
+    PersistableItem getItemByItemIdColorAndSize(String itemId,String itemColor,String itemSize);
 
    }

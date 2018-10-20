@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,6 +26,7 @@ import com.shopit.shopit.model.Item;
 import com.shopit.shopit.viewHolders.ItemViewHolder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,7 +40,7 @@ public class DisplayItemsFragment extends Fragment {
     private RecyclerView.LayoutManager mLayoutManager;
     private DatabaseReference databaseReference;
     private List<ValueEventListener> valueEventListeners = new ArrayList<>();
-    private static final Integer slotSize = 5;
+    private static final Integer slotSize = 100;
 
     private static AppCompatActivity appCompatActivity;
     private static int navViewId;
@@ -61,7 +63,7 @@ public class DisplayItemsFragment extends Fragment {
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
         final Bundle bundle = getArguments();
-        List<String> childHierarchy = bundle.getStringArrayList("childHierarchy");
+        final List<String> childHierarchy = bundle.getStringArrayList("childHierarchy");
         databaseReference = FirebaseDatabase.getInstance().getReference();
         for(String child:childHierarchy){
             databaseReference = databaseReference.child(child);
@@ -89,6 +91,25 @@ public class DisplayItemsFragment extends Fragment {
                         intent.putExtra("itemUrl",items.get(position).getUrl());
                         intent.putExtra("itemName",items.get(position).getName());
                         intent.putExtra("itemPrice",items.get(position).getPrice());
+                        intent.putExtra("itemId",items.get(position).getId());
+                        String sizesAvailable = items.get(position).getSizesAvailable();
+                        String[] sizes = sizesAvailable.split(",");
+
+                        ArrayList<String> sizeList = new ArrayList<String>();
+
+                        for(String size:sizes)
+                            sizeList.add(size);
+
+                        String colorsAvailable = items.get(position).getColorsAvailable();
+                        String[] colors = colorsAvailable.split(",");
+
+                        ArrayList<String> colorsList = new ArrayList<String>();
+
+                        for(String color:colors)
+                            colorsList.add(color);
+
+                        intent.putStringArrayListExtra("sizes",sizeList);
+                        intent.putStringArrayListExtra("colors",colorsList);
                         getContext().startActivity(intent);
                     }
                 });
@@ -106,7 +127,8 @@ public class DisplayItemsFragment extends Fragment {
                     ValueEventListener nextSlotListener = new ItemValueEventListener();
                     databaseReference.orderByKey().startAt(lastKeyReceived).limitToFirst(slotSize).addValueEventListener(nextSlotListener);
                     valueEventListeners.add(nextSlotListener);
-                }
+
+                     }
             }
 
             @Override
@@ -123,6 +145,7 @@ public class DisplayItemsFragment extends Fragment {
             ValueEventListener initialValueEventListener = new ItemValueEventListener();
             valueEventListeners.add(initialValueEventListener);
             databaseReference.orderByKey().limitToFirst(slotSize).addValueEventListener(initialValueEventListener);
+
     }
 
     @Override
@@ -137,7 +160,6 @@ public class DisplayItemsFragment extends Fragment {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             for(DataSnapshot itemSnapshot:dataSnapshot.getChildren()){
-                Log.e("Listener invoked",ItemValueEventListener.this.toString());
                 Item item = itemSnapshot.getValue(Item.class);
                 item.setKey(itemSnapshot.getKey());
                 mAdapter.onUpdateSingleItem(item);

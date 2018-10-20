@@ -11,6 +11,6 @@ import android.arch.persistence.room.RoomDatabase;
 @Database(entities = {PersistableItem.class}, version = 1)
 public abstract class ApplicationDatabase extends RoomDatabase {
 
-    public abstract PersistableItemDao messageDao();
+    public abstract PersistableItemDao itemsDao();
 
 }
