@@ -24,5 +24,6 @@
         <activity android:name=".login.ResetPasswordActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".navigation.Navigator" />
+        <activity android:name=".activities.ItemInfoActivity" />
     </application>
 </manifest>

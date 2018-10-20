@@ -18,7 +18,7 @@ public class FragmentTransactionUtils extends FragmentActivity {
     {
         mFragmentManager = appCompatActivity.getSupportFragmentManager();
         fragmentTransaction = mFragmentManager.beginTransaction();
-        fragmentTransaction.replace(containerId,fragment);
+        fragmentTransaction.replace(containerId,fragment).addToBackStack("MY_FRAGMENT");
         fragmentTransaction.commit();
     }
 

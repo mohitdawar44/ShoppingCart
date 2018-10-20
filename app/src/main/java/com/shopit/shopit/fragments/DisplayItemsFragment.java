@@ -1,22 +1,28 @@
 package com.shopit.shopit.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.shopit.shopit.R;
+import com.shopit.shopit.activities.ItemInfoActivity;
 import com.shopit.shopit.model.Item;
+import com.shopit.shopit.viewHolders.ItemViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +34,20 @@ import java.util.List;
 public class DisplayItemsFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
-    private DisplayItemRecyclerViewAdapter mAdapter;
+    private GenericRecyclerViewAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private DatabaseReference databaseReference;
-    private ValueEventListener valueEventListener;
+    private List<ValueEventListener> valueEventListeners = new ArrayList<>();
+    private static final Integer slotSize = 5;
+
+    private static AppCompatActivity appCompatActivity;
+    private static int navViewId;
+
+    public static DisplayItemsFragment getInstance(AppCompatActivity mAppCompatActivity,int mNavViewId){
+        appCompatActivity = mAppCompatActivity;
+        navViewId = mNavViewId;
+        return new DisplayItemsFragment();
+    }
 
     @Nullable
     @Override
@@ -42,35 +58,90 @@ public class DisplayItemsFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("shopit").child("categories").child("clothes").child("jackets");
-        valueEventListener = new ItemValueEventListener();
-        mAdapter = new DisplayItemRecyclerViewAdapter(getContext());
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        final Bundle bundle = getArguments();
+        List<String> childHierarchy = bundle.getStringArrayList("childHierarchy");
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+        for(String child:childHierarchy){
+            databaseReference = databaseReference.child(child);
+        }
+        //mAdapter = new DisplayItemRecyclerViewAdapter(getContext());
+
+        mAdapter = new GenericRecyclerViewAdapter<Item,ItemViewHolder>(new ViewHolderCreater<ItemViewHolder>() {
+            @Override
+            public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View v= LayoutInflater.from(getContext()).inflate(R.layout.item_cardlayout,parent,false);
+                return new ItemViewHolder(v);
+            }
+        }, new ViewHolderBinder<Item, ItemViewHolder>() {
+            @Override
+            public void onBindViewHolder(ItemViewHolder holder, final List<Item> items, final int position) {
+                holder.itemPrice.setText("$"+items.get(position).getPrice().toString());
+                holder.itemName.setText(items.get(position).getName().toString());
+                Glide.with(getContext())
+                        .load(items.get(position).getUrl())
+                        .into(holder.itemImage);
+                holder.itemCardView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(getContext(), ItemInfoActivity.class);
+                        intent.putExtra("itemUrl",items.get(position).getUrl());
+                        intent.putExtra("itemName",items.get(position).getName());
+                        intent.putExtra("itemPrice",items.get(position).getPrice());
+                        getContext().startActivity(intent);
+                    }
+                });
+            }
+        });
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(!recyclerView.canScrollVertically(1)){
+                    Item item = (Item) mAdapter.getLastItem();
+                    String lastKeyReceived = item.getKey();
+                    Log.e("Scrolling Reached last","Attaching new listener from "+lastKeyReceived);
+                    ValueEventListener nextSlotListener = new ItemValueEventListener();
+                    databaseReference.orderByKey().startAt(lastKeyReceived).limitToFirst(slotSize).addValueEventListener(nextSlotListener);
+                    valueEventListeners.add(nextSlotListener);
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
         return rootView;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        databaseReference.addValueEventListener(valueEventListener);
+            ValueEventListener initialValueEventListener = new ItemValueEventListener();
+            valueEventListeners.add(initialValueEventListener);
+            databaseReference.orderByKey().limitToFirst(slotSize).addValueEventListener(initialValueEventListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if(valueEventListener!=null)
-        databaseReference.removeEventListener(valueEventListener);
+        for(ValueEventListener listener:valueEventListeners)
+        databaseReference.removeEventListener(listener);
     }
 
     class ItemValueEventListener implements ValueEventListener{
 
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            List<Item> updates = new ArrayList<>();
             for(DataSnapshot itemSnapshot:dataSnapshot.getChildren()){
-                updates.add(itemSnapshot.getValue(Item.class));
+                Log.e("Listener invoked",ItemValueEventListener.this.toString());
+                Item item = itemSnapshot.getValue(Item.class);
+                item.setKey(itemSnapshot.getKey());
+                mAdapter.onUpdateSingleItem(item);
             }
-            mAdapter.onUpdate(updates);
         }
 
         @Override

@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.shopit.shopit.MainActivity;
 import com.shopit.shopit.R;
+import com.shopit.shopit.fragments.CategoryFragment;
 import com.shopit.shopit.fragments.DisplayItemsFragment;
 import com.shopit.shopit.fragments.SettingsFragment;
 import com.shopit.shopit.login.LoginActivity;
@@ -70,7 +71,7 @@ public class Navigator extends AppCompatActivity implements NavigationView.OnNav
         }
         navigationView.setNavigationItemSelectedListener(this);
 
-        FragmentTransactionUtils.changeFragment(this,new DisplayItemsFragment(),R.id.navigated_frame);
+        FragmentTransactionUtils.changeFragment(this,CategoryFragment.getInstance(this,R.id.navigated_frame),R.id.navigated_frame);
     }
 
     @Override
@@ -91,6 +92,8 @@ public class Navigator extends AppCompatActivity implements NavigationView.OnNav
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
+        }else if (getFragmentManager().getBackStackEntryCount() > 0) {
+            this.getSupportFragmentManager().popBackStack();
         } else {
             this.finish();
         }
@@ -116,7 +119,7 @@ public class Navigator extends AppCompatActivity implements NavigationView.OnNav
         switch (id){
             case R.id.settings : //FragmentTransactionUtils.changeFragment(this,new SettingsFragment(),R.id.navigated_frame);
                 break;
-            case R.id.categories :FragmentTransactionUtils.changeFragment(this,new DisplayItemsFragment(),R.id.navigated_frame);
+            case R.id.categories :FragmentTransactionUtils.changeFragment(this,new CategoryFragment(),R.id.navigated_frame);
                 break;
             case R.id.signout : auth.signOut();
                 break;
